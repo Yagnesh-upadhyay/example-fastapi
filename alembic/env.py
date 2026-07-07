@@ -13,7 +13,7 @@ config = context.config
 # config.set_main_option("sqlalchemy.url", f'postgresql+psycopg2://{settings.database_username}:{settings.database_password}@{settings.database_hostname}:{settings.database_port}/{settings.database_name}')
 
 
-DATABASE_URL = os.getenv("postgresql://yagnesh:vl5qdxX8AWtJ6SXgO1I5kE4aerAPBCfE@dpg-d96b7ha8qa3s738n64tg-a.ohio-postgres.render.com/fastapi_zyjz")
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 config.set_main_option("sqlalchemy.url", DATABASE_URL)
 
