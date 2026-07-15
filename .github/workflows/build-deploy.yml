@@ -1,55 +1,45 @@
 name: Build and Deploy Code
 
-# on:
-#   push:
-#     branches: #["main"]
-#       - "main"
-#       - "another_branch"
-#   pull_request:
-#     branches:
-#       - "test_branch"
-
 on: [push, pull_request]
 
 jobs:
   job1:
+    runs-on: ubuntu-latest
+
     environment:
       name: testing
+
     env:
-      SECRETKEY=${{secrets. SECRETKEY}}
-      ALGORITHM=${{secrets.ALGORITHM}}
-      ACCESS_TOKEN_EXPIRE_MINUTES=${{secrets.ACCESS_TOKEN_EXPIRE_MINUTES}}
-      DATABASE_URL=${{secrets.DATABASE_URL}}
+      SECRETKEY: ${{ secrets.SECRETKEY }}
+      ALGORITHM: ${{ secrets.ALGORITHM }}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${{ secrets.ACCESS_TOKEN_EXPIRE_MINUTES }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
     services:
       postgres:
-        image: postgres
+        image: postgres:15
         env:
-          POSTGRES_PASSWORD: ${{secrets.DATABASE_PASSWORD}}
-          POSTGRES_DB: ${{secrets.DATABASE_NAME}}_test
+          POSTGRES_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.DATABASE_NAME }}_test
         ports:
           - 5432:5432
         options: >-
-          --health-cmd pg_isready
+          --health-cmd "pg_isready -U postgres"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
 
-    runs-on: ubuntu-latest
-    steps: 
-      - name: pulling git repo
-        uses: actions/checkout@v7
-      # - name: say hi to yagnesh
-      #   run: echo "hello yagnesh"
-      - name: Install python version 3.11
+    steps:
+      - name: Pull repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: update pip
-        run: python -m pip install --upgrade pip
-      - name: install all dependencies
-        run: pip install -r requirements.txt
-      - name: test with pytest
-        run: |
-          pip install pytest
-          pytest
 
+      - run: python -m pip install --upgrade pip
+      - run: pip install -r requirements.txt
+
+      - name: Run tests
+        run: pytest
